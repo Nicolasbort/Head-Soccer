@@ -24,6 +24,20 @@ def checkCollisions(objFoot, ballObj):
 
 
 
+# Return angle from foot and ball
+def getAngle(objFoot, ballObj):
+
+    xAxis = ballObj.getPos()[0] - objFoot.getFootPos()[0]
+
+    # Checks division by zero
+    if ( xAxis != 0 ):
+        angular_coef = ( ballObj.getPos()[1] - objFoot.getFootPos()[1] )*-1 / ( xAxis )
+        angle = math.atan( angular_coef ) * 57.3
+    else:
+        angle = 90 
+
+    return angle
+
 
 class Ball():
     def __init__(self, frame, initX, initY):
