@@ -21,22 +21,30 @@ background = Image(Point(x/2, y/2), 'Images/bg.gif')
 # Init Key Buffer
 win.ligar_Buffer()
 
+
+##### INSTANCE AND DRAW COLLISIONS ######
+
 # Instance Player and draw collisions ## Collisions must be drawed before background
 leftPlayer = Player(win, 300, 485)
-leftPlayer.drawCollisions(300, 485)
+leftPlayer.drawCollisions(900, 485)
 
 # Instance Ball and collisions
 ball = Ball(win, x/2, ground - ballRadius)
-ball.drawCollisions(x/2, ground - ballRadius)
+ball.drawCollisions(x/2, ground - ballRadius - 500)
 
-# Draw background
+
+##### DRAW BACKGROUND #####
+ 
 background.draw(win)
+
+
+##### DRAW MECHS #####
 
 # Draw Player Mechs
 leftPlayer.drawMech(300, 503, "Images/LeftChar.gif")
 
 # Draw Ball Mechs
-ball.drawMech(x/2, ground - ballRadius, "Images/Ball.gif")
+ball.drawMech(x/2, ground - ballRadius - 500, "Images/Ball.gif")
 
 
 
@@ -101,6 +109,7 @@ while True:
             leftPlayer.contJump = 0
 
 
+    print( getAngle(leftPlayer, ball) )
 
     # Checks for vel and move
     if (ball.ballVelocityX != 0 or ball.ballVelocityY != 0):
