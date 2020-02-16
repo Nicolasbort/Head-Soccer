@@ -11,6 +11,9 @@ charVel = 10
 ground = 545
 friction = 1
 
+leftPlayerX = 300
+RightPlayerX = 900
+
 
 # Main Window
 win = GraphWin('Head Soccer', x, y, False)
@@ -25,12 +28,12 @@ win.ligar_Buffer()
 ##### INSTANCE AND DRAW COLLISIONS ######
 
 # Instance Player and draw collisions ## Collisions must be drawed before background
-leftPlayer = Player(win, 300, 485)
-leftPlayer.drawCollisions(900, 485)
+leftPlayer = Player(win, leftPlayerX, 485)
+leftPlayer.drawCollisions(leftPlayerX, 485)
 
 # Instance Ball and collisions
 ball = Ball(win, x/2, ground - ballRadius)
-ball.drawCollisions(x/2, ground - ballRadius - 500)
+ball.drawCollisions(x/2, ground - ballRadius)
 
 
 ##### DRAW BACKGROUND #####
@@ -41,10 +44,10 @@ background.draw(win)
 ##### DRAW MECHS #####
 
 # Draw Player Mechs
-leftPlayer.drawMech(300, 503, "Images/LeftChar.gif")
+leftPlayer.drawMech(leftPlayerX, 503, "Images/LeftChar.gif")
 
 # Draw Ball Mechs
-ball.drawMech(x/2, ground - ballRadius - 500, "Images/Ball.gif")
+ball.drawMech(x/2, ground - ballRadius, "Images/Ball.gif")
 
 
 
@@ -62,28 +65,37 @@ while True:
         if ("Left" in lista) and (leftPlayer.getPos()[0] - headRadius > 0):
             leftPlayer.move(-charVel, 0)
 
-        if("Right" in lista) and (leftPlayer.getPos()[0] + headRadius < x):	
+        elif( "Right" in lista ) and (leftPlayer.getPos()[0] + headRadius < x):
             leftPlayer.move(charVel, 0)
             
         if("Up" in lista):	
             if not(leftPlayer.isJumping):
                 leftPlayer.isJumping = True
 
-        if("quoteright" in lista):	
+        if("c" in lista):	
             leftPlayer.restartPos()
             ball.restartPos()
+
+        print(lista)
     
 
     # Foot and Ball collisions
     if ( checkCollisions(leftPlayer, ball) ):
         
-        # if True: Char is left from ball
-        if ( leftPlayer.getFootPos()[0] < ball.getPos()[0] ):
-            ball.ballVelocityX = 20
+        angle = getAngle(leftPlayer, ball)
 
-        # if True: Char is right from ball
-        if ( leftPlayer.getFootPos()[0] > ball.getPos()[0] ):
-            ball.ballVelocityX = -20
+        if ( angle == 0 ):
+            if ( leftPlayer.getFootPos()[0] > ball.getPos()[0] ):
+                ball.ballVelocityX = -10
+            else:
+                ball.ballVelocityX = 10
+        else:
+            if ( leftPlayer.getFootPos()[0] > ball.getPos()[0] ):
+                # Get X speed
+                ball.ballVelocityX = math.cos( angle ) * -10
+            else:
+                # Get Y speed
+                ball.ballVelocityX = math.cos( angle ) * 10
 
 
     # leftPlayer Jump Verification
@@ -109,7 +121,6 @@ while True:
             leftPlayer.contJump = 0
 
 
-    print( getAngle(leftPlayer, ball) )
 
     # Checks for vel and move
     if (ball.ballVelocityX != 0 or ball.ballVelocityY != 0):
