@@ -3,8 +3,6 @@ from graphics import *
 import math
 
 
-#def restartGame():
-
 global footRadius
 global headRadius
 global heightJump
@@ -32,10 +30,10 @@ class Ball():
 
         #Ball Frame
         self.frame = frame
-
-        # Ball Values
-        self.velx = 0
-        self.vely = 0
+        
+        # Ball Velocity
+        self.ballVelocityX = 0
+        self.ballVelocityY = 0
 
         # Initial parameters
         self.initX = initX
@@ -60,9 +58,18 @@ class Ball():
         self.mech = Image(Point(px, py), path)
         self.mech.draw(self.frame)
 
+    
+    def restartPos(self):
+        # Restart init values
+        self.ballVelocityX = 0
+        self.ballVelocityY = 0
+
+        # Restart Ball Position
+        self.move( self.initX - self.getPos()[0], self.initY - self.getPos()[1] )
+
 
 class Player():
-    def __init__(self, frame, initX, initY):
+    def __init__(self, frame, initX, initY, charVel = 10):
 
         # Player Frame
         self.frame = frame
