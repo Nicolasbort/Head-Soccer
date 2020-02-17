@@ -24,20 +24,6 @@ def checkCollisions(objFoot, ballObj):
 
 
 
-# Return angle from foot and ball
-def getAngle(objFoot, ballObj):
-
-    xAxis = ballObj.getPos()[0] - objFoot.getFootPos()[0]
-
-    # Checks division by zero
-    if ( xAxis != 0 ):
-        angular_coef = ( ballObj.getPos()[1] - objFoot.getFootPos()[1] )*-1 / ( xAxis )
-        angle = math.atan( angular_coef ) * 57.3
-    else:
-        angle = 90 
-
-    return angle
-
 
 class Ball():
     def __init__(self, frame, initX, initY):
@@ -48,6 +34,7 @@ class Ball():
         # Ball Velocity
         self.ballVelocityX = 0
         self.ballVelocityY = 0
+        self.acceleration = 1
 
         # Initial parameters
         self.initX = initX
@@ -62,6 +49,9 @@ class Ball():
     def getPos(self):
         return self.circleBall.getCenter().getX(), self.circleBall.getCenter().getY() 
         
+
+    def getPosBellow(self):
+        return self.circleBall.getCenter().getX(), self.circleBall.getCenter().getY() + ballRadius
     
     def drawCollisions(self, px, py):
         self.circleBall = Circle(Point(px, py), ballRadius)
@@ -83,7 +73,7 @@ class Ball():
 
 
 class Player():
-    def __init__(self, frame, initX, initY, charVel = 10):
+    def __init__(self, frame, initX, initY, charName, charVel = 10):
 
         # Player Frame
         self.frame = frame
@@ -97,6 +87,8 @@ class Player():
         self.initY = initY
         self.jumpDy = 1
         self.contJump = 0
+        self.contKick = 0
+        self.charName = charName
 
 
     # Draw Char collisions
@@ -112,6 +104,10 @@ class Player():
         self.mech = Image(Point(px, py), path)
         self.mech.draw(self.frame)
 
+    
+    def undrawMech(self):
+        self.mech.undraw()
+
 
     # Move Char
     def move(self, dx, dy):
@@ -125,6 +121,10 @@ class Player():
         self.move(0, dy)
 
 
+    def kick(self):
+        self.move(self.contKick, 0)
+
+
     # Get X and Y Player Position ([X, Y])
     def getPos(self):
         return self.head.getCenter().getX(), self.head.getCenter().getY()
@@ -136,6 +136,11 @@ class Player():
         self.isKicking = False
         self.jumpDy = 1
         self.contJump = 0
+        self.contKick = 0
+
+        # Redraw Mechs if player is kicking
+        self.undrawMech()
+        self.drawMech(self.getPos()[0], self.getPos()[1] + 18, "Images/"+self.charName+"Char.gif")
 
         # Restart Player init Position
         self.move(self.initX - self.getPos()[0], self.initY - self.getPos()[1])

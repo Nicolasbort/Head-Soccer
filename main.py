@@ -10,9 +10,8 @@ framePeriod = 1.0/gameFPS
 charVel = 10
 ground = 545
 friction = 1
-
-leftPlayerX = 300
-RightPlayerX = 900
+kickSpeed = 10
+ballOnGround = ground - ballRadius
 
 
 # Main Window
@@ -24,30 +23,22 @@ background = Image(Point(x/2, y/2), 'Images/bg.gif')
 # Init Key Buffer
 win.ligar_Buffer()
 
-
-##### INSTANCE AND DRAW COLLISIONS ######
-
 # Instance Player and draw collisions ## Collisions must be drawed before background
-leftPlayer = Player(win, leftPlayerX, 485)
-leftPlayer.drawCollisions(leftPlayerX, 485)
+leftPlayer = Player(win, 300, 485, "Left")
 
 # Instance Ball and collisions
-ball = Ball(win, x/2, ground - ballRadius)
-ball.drawCollisions(x/2, ground - ballRadius)
+ball = Ball(win, x/2, 200)
+ball.drawCollisions(x/2, 200)
 
-
-##### DRAW BACKGROUND #####
- 
+# Draw background
 background.draw(win)
 
-
-##### DRAW MECHS #####
-
 # Draw Player Mechs
-leftPlayer.drawMech(leftPlayerX, 503, "Images/LeftChar.gif")
+leftPlayer.drawMech(300, 503, "Images/LeftChar.gif")
+leftPlayer.drawCollisions(300, 485)
 
 # Draw Ball Mechs
-ball.drawMech(x/2, ground - ballRadius, "Images/Ball.gif")
+ball.drawMech(x/2, 200, "Images/Ball.gif")
 
 
 
@@ -59,43 +50,43 @@ while True:
     update()
 
 
-    # Keyboard Verification
+
+
+     # Keyboard Verification
     if len(lista) > 0:
 
         if ("Left" in lista) and (leftPlayer.getPos()[0] - headRadius > 0):
             leftPlayer.move(-charVel, 0)
 
-        elif( "Right" in lista ) and (leftPlayer.getPos()[0] + headRadius < x):
+        elif("Right" in lista) and (leftPlayer.getPos()[0] + headRadius < x):	
             leftPlayer.move(charVel, 0)
             
         if("Up" in lista):	
             if not(leftPlayer.isJumping):
                 leftPlayer.isJumping = True
 
-        if("c" in lista):	
+        if("space" in lista):
+            if not(leftPlayer.isKicking):
+                leftPlayer.isKicking = True
+                leftPlayer.saveMech = leftPlayer.mech
+
+        if("quoteright" in lista):	
             leftPlayer.restartPos()
             ball.restartPos()
 
-        print(lista)
-    
+
+
 
     # Foot and Ball collisions
     if ( checkCollisions(leftPlayer, ball) ):
         
-        angle = getAngle(leftPlayer, ball)
+        # if True: Char is left from ball
+        if ( leftPlayer.getFootPos()[0] < ball.getPos()[0] ):
+            ball.ballVelocityX = 20
 
-        if ( angle == 0 ):
-            if ( leftPlayer.getFootPos()[0] > ball.getPos()[0] ):
-                ball.ballVelocityX = -10
-            else:
-                ball.ballVelocityX = 10
-        else:
-            if ( leftPlayer.getFootPos()[0] > ball.getPos()[0] ):
-                # Get X speed
-                ball.ballVelocityX = math.cos( angle ) * -10
-            else:
-                # Get Y speed
-                ball.ballVelocityX = math.cos( angle ) * 10
+        # if True: Char is right from ball
+        if ( leftPlayer.getFootPos()[0] > ball.getPos()[0] ):
+            ball.ballVelocityX = -20
 
 
     # leftPlayer Jump Verification
@@ -106,14 +97,15 @@ while True:
             # Up
             if leftPlayer.contJump//12 == 0:
                 leftPlayer.jump(-leftPlayer.jumpDy)
-                leftPlayer.jumpDy += 1.5
+                leftPlayer.jumpDy += 4
 
             # Down
             if leftPlayer.contJump//12 == 1:
-                leftPlayer.jumpDy -= 1.5
+                leftPlayer.jumpDy -= 4
                 leftPlayer.jump(leftPlayer.jumpDy)
 
-            leftPlayer.contJump += 1 
+            # Defines jump speed
+            leftPlayer.contJump += 1.5
 
         # Jump ends		
         else:
@@ -121,33 +113,88 @@ while True:
             leftPlayer.contJump = 0
 
 
+    # Checks if the player is kicking
+    if (leftPlayer.isKicking):
+
+        # First Mech
+        if (leftPlayer.contKick < kickSpeed/2):
+
+            CurrentX = leftPlayer.getPos()[0]
+            CurrentY = leftPlayer.getPos()[1] + 18
+
+            leftPlayer.undrawMech()
+            leftPlayer.drawMech(CurrentX, CurrentY, "Images/LeftChar_kick1.gif")
+
+            leftPlayer.contKick += 1
+
+        # Second Mech
+        elif (leftPlayer.contKick < kickSpeed):
+
+            CurrentX = leftPlayer.getPos()[0]
+            CurrentY = leftPlayer.getPos()[1] + 18
+
+            leftPlayer.undrawMech()
+            leftPlayer.drawMech(CurrentX, CurrentY, "Images/LeftChar_kick2.gif")
+
+            leftPlayer.contKick += 1
+        
+        # Change to initial mech
+        else:
+            CurrentX = leftPlayer.getPos()[0]
+            CurrentY = leftPlayer.getPos()[1] + 18
+            
+            leftPlayer.undrawMech()
+            leftPlayer.drawMech(CurrentX, CurrentY, "Images/LeftChar.gif")
+            leftPlayer.isKicking = False
+            leftPlayer.contKick = 0
+
+    #print(ball.getPosBellow()[1])
 
     # Checks for vel and move
     if (ball.ballVelocityX != 0 or ball.ballVelocityY != 0):
 
         ball.move(ball.ballVelocityX, ball.ballVelocityY)
 
-        # Verify if ball is on the ground and apply friction
-        if ( ball.getPos()[1] + ballRadius == ground ):
 
-            # Verify if ball is moving to right
-            if ball.ballVelocityX > 0:
-            
-                if (ball.ballVelocityX - friction < 0):
-                    ball.ballVelocityX = 0
-                else:
-                    ball.ballVelocityX -= friction
-            
-            # Or moving to left
+    print(ball.ballVelocityY)
+
+    # Verify if ball is on the ground and apply friction
+    if ( ball.getPosBellow()[1]  == ground ):
+
+        ball.acceleration = 0
+        print(ball.getPosBellow()[1])
+
+        # Verify if ball is moving to right
+        if ball.ballVelocityX > 0:
+        
+            if (ball.ballVelocityX - friction < 0):
+                ball.ballVelocityX = 0
             else:
+                ball.ballVelocityX -= friction
+        
+        # Or moving to left
+        else:
 
-                if (ball.ballVelocityX + friction > 0):
-                    ball.ballVelocityX = 0
-                else:
-                    ball.ballVelocityX += friction
+            if (ball.ballVelocityX + friction > 0):
+                ball.ballVelocityX = 0
+            else:
+                ball.ballVelocityX += friction
 
+    elif ( ball.getPosBellow()[1] < ground ):
 
-	
+        if (ball.getPosBellow()[1] + ball.ballVelocityY > ground):
+
+            ball.ballVelocityY = (ball.ballVelocityY * -0.8)//1
+
+            if ( ball.ballVelocityY < 2 and ball.ballVelocityY > -2 ):
+                ball.ballVelocityY = 0
+
+        else: 
+            ball.ballVelocityY += ball.acceleration
+
+    else:
+        ball.move( 0, ground - ball.getPosBellow()[1] )
+
 
     time.sleep(framePeriod)
 
