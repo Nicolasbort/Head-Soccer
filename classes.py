@@ -1,4 +1,3 @@
-
 from graphics import *
 import math
 
@@ -32,8 +31,8 @@ class Ball():
         self.frame = frame
         
         # Ball Velocity
-        self.ballVelocityX = 0
-        self.ballVelocityY = 0
+        self.speedX = 0
+        self.speedY = 0
         self.acceleration = 1
 
         # Initial parameters
@@ -65,8 +64,8 @@ class Ball():
     
     def restartPos(self):
         # Restart init values
-        self.ballVelocityX = 0
-        self.ballVelocityY = 0
+        self.speedX = 0
+        self.speedY = 0
 
         # Restart Ball Position
         self.move( self.initX - self.getPos()[0], self.initY - self.getPos()[1] )
@@ -89,6 +88,7 @@ class Player():
         self.contJump = 0
         self.contKick = 0
         self.charName = charName
+        self.charVel = charVel
 
 
     # Draw Char collisions
