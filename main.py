@@ -26,8 +26,8 @@ win.ligar_Buffer()
 leftPlayer = Player(win, 300, 485, "Left")
 
 # Instance Ball and collisions
-ball = Ball(win, width/2, 200)
-ball.drawCollisions(width/2, 200)
+ball = Ball(win, width/2, ground)
+ball.drawCollisions(width/2, ground)
 
 # Draw background
 background.draw(win)
@@ -37,7 +37,7 @@ leftPlayer.drawMech(300, 503, "Images/LeftChar.gif")
 leftPlayer.drawCollisions(300, 485)
 
 # Draw Ball Mechs
-ball.drawMech(width/2, 200, "Images/Ball.gif")
+ball.drawMech(width/2, ground, "Images/Ball.gif")
 
 
 
@@ -77,15 +77,23 @@ while True:
 
     # Foot and Ball collisions
     if ( checkCollisions(leftPlayer, ball) ):
+
+        angle = getAngle(leftPlayer, ball)
+
+        print(angle)
         
         # if True: Char is left from ball
         if ( leftPlayer.getFootPos()[0] < ball.getPos()[0] ):
-            ball.speedX = 20
+            ball.speedX = ( 20 * math.cos( angle ) )//1
+            ball.speedY = ( 20 * math.sin( angle ) )//1
 
         # if True: Char is right from ball
         if ( leftPlayer.getFootPos()[0] > ball.getPos()[0] ):
-            ball.speedX = -20
+            ball.speedX = ( 20 * math.cos( angle ) )//-1
+            ball.speedX = ( 20 * math.sin( angle ) )//1
 
+
+    print(ball.speedX, ball.speedY)
 
     # leftPlayer Jump Verification
     if (leftPlayer.isJumping):
@@ -113,23 +121,28 @@ while True:
 
     # Checks if the player is kicking
     if (leftPlayer.isKicking):
-
+  
         # First Mech
         if (leftPlayer.contKick < kickSpeed/2):
 
             CurrentX = leftPlayer.getPos()[0]
             CurrentY = leftPlayer.getPos()[1] + 18
 
+            leftPlayer.kick(0, leftPlayer.kickDy)
+
             leftPlayer.undrawMech()
             leftPlayer.drawMech(CurrentX, CurrentY, "Images/LeftChar_kick1.gif")
 
             leftPlayer.contKick += 1
+            
 
         # Second Mech
         elif (leftPlayer.contKick < kickSpeed):
 
             CurrentX = leftPlayer.getPos()[0]
             CurrentY = leftPlayer.getPos()[1] + 18
+
+            leftPlayer.kick(leftPlayer.kickDx, -leftPlayer.kickDy)
 
             leftPlayer.undrawMech()
             leftPlayer.drawMech(CurrentX, CurrentY, "Images/LeftChar_kick2.gif")
@@ -140,7 +153,9 @@ while True:
         else:
             CurrentX = leftPlayer.getPos()[0]
             CurrentY = leftPlayer.getPos()[1] + 18
-            
+
+            leftPlayer.kick( -(kickSpeed/2)*(leftPlayer.kickDx), 0)
+
             leftPlayer.undrawMech()
             leftPlayer.drawMech(CurrentX, CurrentY, "Images/LeftChar.gif")
             leftPlayer.isKicking = False
@@ -159,7 +174,6 @@ while True:
     if ( ball.getPosBellow()[1]  == ground ):
 
         ball.acceleration = 0
-        print(ball.getPosBellow()[1])
 
         # Verify if ball is moving to right
         if ball.speedX > 0:
@@ -191,7 +205,6 @@ while True:
 
     else:
         ball.move( 0, ground - ball.getPosBellow()[1] )
-
 
     time.sleep(framePeriod)
 

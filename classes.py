@@ -22,6 +22,13 @@ def checkCollisions(objFoot, ballObj):
         return True
 
 
+def getAngle(objFoot, ballObj):
+
+    angular_coef = ( (ballObj.getPos()[1] - objFoot.getFootPos()[1]) / (ballObj.getPos()[0] - objFoot.getFootPos()[0]) )
+
+    angle = math.atan( angular_coef ) * 57.3
+
+    return angle
 
 
 class Ball():
@@ -89,6 +96,8 @@ class Player():
         self.contKick = 0
         self.charName = charName
         self.charVel = charVel
+        self.kickDy = 2
+        self.kickDx = 3
 
 
     # Draw Char collisions
@@ -121,8 +130,8 @@ class Player():
         self.move(0, dy)
 
 
-    def kick(self):
-        self.move(self.contKick, 0)
+    def kick(self, dx, dy):
+        self.foot.move(dx, dy)
 
 
     # Get X and Y Player Position ([X, Y])
