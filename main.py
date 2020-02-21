@@ -74,7 +74,6 @@ while True:
 
 
 
-
     # Foot and Ball collisions
     if ( checkCollisions(leftPlayer, ball) ):
 
@@ -90,10 +89,8 @@ while True:
         # if True: Char is right from ball
         if ( leftPlayer.getFootPos()[0] > ball.getPos()[0] ):
             ball.speedX = ( 20 * math.cos( angle ) )//-1
-            ball.speedX = ( 20 * math.sin( angle ) )//1
+            ball.speedY = ( 20 * math.sin( angle ) )//1
 
-
-    print(ball.speedX, ball.speedY)
 
     # leftPlayer Jump Verification
     if (leftPlayer.isJumping):
@@ -163,19 +160,16 @@ while True:
 
 
 
-    # Checks for vel and move
-    if (ball.speedX != 0 or ball.speedY != 0):
+    # Checks if the ball is on the ground and apply friction
+    if ( ball.getPosBellow() == ground ):
 
-        ball.move(ball.speedX, ball.speedY)
+        print(ball.speedY)
+        if ( ball.speedY > 3 ):
+            ball.speedY = ( ball.speedY * 0.7) // -1
+        else:
+            ball.speedY = 0
 
-
-
-    # Verify if ball is on the ground and apply friction
-    if ( ball.getPosBellow()[1]  == ground ):
-
-        ball.acceleration = 0
-
-        # Verify if ball is moving to right
+        # Checks if ball is moving to right
         if ball.speedX > 0:
         
             if (ball.speedX - friction < 0):
@@ -191,20 +185,34 @@ while True:
             else:
                 ball.speedX += friction
 
-    elif ( ball.getPosBellow()[1] < ground ):
+    elif ( ball.getPosBellow() < ground ):
 
-        if (ball.getPosBellow()[1] + ball.speedY > ground):
+        if (ball.getPosBellow() + ball.speedY > ground):
 
-            ball.speedY = (ball.speedY * -0.8)//1
+            ball.speedY = ground - ball.getPosBellow()
 
-            if ( ball.speedY < 2 and ball.speedY > -2 ):
-                ball.speedY = 0
-
-        else: 
+        else:
             ball.speedY += ball.acceleration
 
     else:
-        ball.move( 0, ground - ball.getPosBellow()[1] )
+        ball.move( 0, ground - ball.getPosBellow() )
+
+
+
+    # Checks for vel and move
+    if (ball.speedX != 0 or ball.speedY != 0):
+
+        if ( ball.getPos()[0] >= width ):
+            ball.speedX *= -1
+
+        if ( ball.getPos()[0] <= 0 ):
+            ball.speedX *= -1
+
+        if ( ball.getPos()[1] <= 0 ):
+            ball.speedY *= -1
+
+        ball.move(ball.speedX, ball.speedY)
+
 
     time.sleep(framePeriod)
 

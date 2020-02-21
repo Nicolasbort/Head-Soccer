@@ -6,29 +6,35 @@ global footRadius
 global headRadius
 global heightJump
 global ballRadius
+global plusError
 
 footRadius = 15
 headRadius = 28
 heightJump = 24
 ballRadius = 15
+plusError = 2
 
 
-# Verify foot and ball collisions
+# Checks foot and ball collisions
 def checkCollisions(objFoot, ballObj):
 
     distance = math.hypot( ballObj.getPos()[0] - objFoot.getFootPos()[0] , ballObj.getPos()[1] - objFoot.getFootPos()[1])
 
-    if (distance <= footRadius + ballRadius):
+    # PlusError is to improve the collisions
+    if (distance <= footRadius + ballRadius + plusError):
         return True
 
 
 def getAngle(objFoot, ballObj):
 
-    angular_coef = ( (ballObj.getPos()[1] - objFoot.getFootPos()[1]) / (ballObj.getPos()[0] - objFoot.getFootPos()[0]) )
+    axisX = ballObj.getPos()[0] - objFoot.getFootPos()[0]
 
-    angle = math.atan( angular_coef ) * 57.3
-
-    return angle
+    # Checks for division by zero
+    if ( axisX == 0 ):
+        return 90
+    else:
+        angular_coef = ( (ballObj.getPos()[1] - objFoot.getFootPos()[1]) / (ballObj.getPos()[0] - objFoot.getFootPos()[0]) )
+        return math.atan( angular_coef ) * 57.3
 
 
 class Ball():
@@ -57,7 +63,7 @@ class Ball():
         
 
     def getPosBellow(self):
-        return self.circleBall.getCenter().getX(), self.circleBall.getCenter().getY() + ballRadius
+        return self.circleBall.getCenter().getY() + ballRadius
     
     def drawCollisions(self, px, py):
         self.circleBall = Circle(Point(px, py), ballRadius)
